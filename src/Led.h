@@ -17,9 +17,15 @@ class Led {
         void on();
         void off();
         void toggle();
-        static void toggle(Led* led);
-        void flash(float milliseconds);
+        void flash(uint32_t milliseconds);
         void stopFlash();
+        static bool isOn(Led* led);
+        static bool isOff(Led* led);
+        static void on(Led* led);
+        static void off(Led* led);
+        static void toggle(Led* led);
+        static void flash(Led* led, uint32_t milliseconds);
+        static void stopFlash(Led* led);
 
     private:
         const byte _pin;

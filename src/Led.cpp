@@ -32,16 +32,40 @@ void Led::toggle() {
     this->_setState(!this->_state);
 }
 
-void Led::toggle(Led* led) {
-    led->toggle();
-}
-
-void Led::flash(float milliseconds) {
+void Led::flash(uint32_t milliseconds) {
     this->_ticker.attach_ms(milliseconds, &Led::toggle, this);
 }
 
 void Led::stopFlash() {
     this->_ticker.detach();
+}
+
+bool Led::isOn(Led* led) {
+    return led->isOn();
+}
+
+bool Led::isOff(Led* led) {
+    return led->isOff();
+}
+
+void Led::on(Led* led) {
+    led->on();
+}
+
+void Led::off(Led* led) {
+    led->off();
+}
+
+void Led::toggle(Led* led) {
+    led->toggle();
+}
+
+void Led::flash(Led* led, uint32_t milliseconds) {
+    led->flash(milliseconds);
+}
+
+void Led::stopFlash(Led* led) {
+    led->stopFlash();
 }
 
 void Led::_setState(int state) {
