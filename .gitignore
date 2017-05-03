@@ -2,7 +2,7 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
-lib/
 *.tmp
 *.tmo
-node_modules/
+/node_modules
+/server/lib
