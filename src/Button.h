@@ -4,9 +4,8 @@
 #include <Arduino.h>
 #include <Ticker.h>
 
-
-const static int BUTTON_UP = 0;      // switch this when wired up to non LED
-const static int BUTTON_DOWN = 1;
+const static int BUTTON_UP = LOW;      // switch this when wired up to non LED
+const static int BUTTON_DOWN = HIGH;
 
 class Button {
     public:

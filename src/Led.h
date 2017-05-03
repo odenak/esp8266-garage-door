@@ -8,9 +8,7 @@ const static int LED_ON = LOW;
 const static int LED_OFF = HIGH;
 
 class Led {
-
     public:
-
         Led(byte pin);
         ~Led();
         void init();
