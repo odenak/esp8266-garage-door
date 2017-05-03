@@ -1,6 +1,6 @@
 #include "Led.h"
 
-Led::Led(byte attachTo) : _pin(attachTo) {}
+Led::Led(byte pin) : _pin(pin) {}
 
 Led::~Led() {
     this->_ticker.detach();
