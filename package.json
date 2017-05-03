@@ -1,0 +1,29 @@
+{
+  "name": "esp8226-garage-door-fe",
+  "version": "0.0.1",
+  "description": "Web Front End for Garage Door Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odenak/esp8266-garage-door.git"
+  },
+  "author": "John Li",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/odenak/esp8266-garage-door/issues"
+  },
+  "homepage": "https://github.com/odenak/esp8266-garage-door#readme",
+  "dependencies": {
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "whatwg-fetch": "^2.0.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "webpack": "^2.4.1",
+    "webpack-notifier": "^1.5.0"
+  }
+}
