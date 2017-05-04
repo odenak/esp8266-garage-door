@@ -4,13 +4,19 @@
 #include <ESP8266WebServer.h>       // Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>            // https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 #include <ESP8266mDNS.h>
+#include <WebSocketsServer.h>
+#include <Hash.h>
+
 #include <FS.h>                     // Needed for SPIFFS
 
 #include "Led.h"
 #include "Button.h"
 
+
 const char AP_NAME[] = "Garage Door Config";
 const char HOSTNAME[] = "garage";
+
+uint8_t socketNumber;
 
 // Instantiate Status LED
 Led statusLed(BUILTIN_LED);
@@ -18,9 +24,45 @@ Led statusLed(BUILTIN_LED);
 Button garageButton(D1);
 // Instantiate web server
 ESP8266WebServer server(80);
+WebSocketsServer webSocket(81);
 
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
 
-void wifiManagerInit() {
+    switch(type) {
+        case WStype_DISCONNECTED:
+            Serial.printf("[%u] Disconnected!\n", num);
+            break;
+        case WStype_CONNECTED:
+            {
+                IPAddress ip = webSocket.remoteIP(num);
+                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+				// send message to client
+				webSocket.sendTXT(num, "Connected");
+                socketNumber = num;
+            }
+            break;
+        case WStype_TEXT:
+            Serial.printf("[%u] get Text: %s\n", num, payload);
+
+            // send message to client
+            // webSocket.sendTXT(num, "message here");
+
+            // send data to all connected clients
+            // webSocket.broadcastTXT("message here");
+            break;
+        case WStype_BIN:
+            Serial.printf("[%u] get binary lenght: %u\n", num, lenght);
+            hexdump(payload, lenght);
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, lenght);
+            break;
+    }
+
+}
+
+void wifiManagerSetup() {
     // Initialize Wifi Manager
     WiFiManager wifiManager;
     // wifiManager.autoConnect("Garage Door Opener");
@@ -32,8 +74,6 @@ void wifiManagerInit() {
         delay(1000);
     }
     WiFi.hostname(HOSTNAME);
-    MDNS.addService("http", "tcp", 80);
-    MDNS.begin(HOSTNAME);
 }
 
 void configModeCallback(WiFiManager *myWiFiManager) {
@@ -46,7 +86,7 @@ void configModeCallback(WiFiManager *myWiFiManager) {
     statusLed.flash(50);
 }
 
-void webServerInit() {
+void webServerSetup() {
     // Start SPIFFS for file access
     SPIFFS.begin();
 
@@ -160,10 +200,21 @@ void setup() {
     Serial.begin(921600);
 
     // Start WifiManager
-    wifiManagerInit();
+    wifiManagerSetup();
 
+    if (MDNS.begin("garage", WiFi.localIP())) {
+        Serial.println("MDNS responder started");
+        MDNS.addService("http", "tcp", 80);
+        MDNS.addService("ws", "tcp", 81);
+    }
+    else {
+        Serial.println("MDNS.begin failed");
+    }
+
+    webSocket.begin();
+    webSocket.onEvent(webSocketEvent);
     // Start the web server
-    webServerInit();
+    webServerSetup();
 
 
 
@@ -181,4 +232,7 @@ void setup() {
 void loop() {
     // webserver to handle clients
     server.handleClient();
+    webSocket.loop();
+    // webSocket.broadcastTXT("message here");
+
 }
