@@ -3,14 +3,14 @@
 #include <DNSServer.h>              // Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h>       // Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>            // https://github.com/tzapu/WiFiManager WiFi Configuration Magic
-#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <FS.h>                     // Needed for SPIFFS
 
 #include "Led.h"
 #include "Button.h"
 
 const char AP_NAME[] = "Garage Door Config";
-const char HOSTNAME[] = "GarageDoorServer";
+const char HOSTNAME[] = "garage";
 
 // Instantiate Status LED
 Led statusLed(BUILTIN_LED);
@@ -32,6 +32,8 @@ void wifiManagerInit() {
         delay(1000);
     }
     WiFi.hostname(HOSTNAME);
+    MDNS.addService("http", "tcp", 80);
+    MDNS.begin(HOSTNAME);
 }
 
 void configModeCallback(WiFiManager *myWiFiManager) {
@@ -166,11 +168,13 @@ void setup() {
 
 
 
+
     // === Clean Up ====
     // Stop flashing status LED
     statusLed.stopFlash();
 
     // Set status LED to indicate boot up completed
+    statusLed.setBrightness(50);
     statusLed.on();
 }
 

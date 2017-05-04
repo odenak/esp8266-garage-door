@@ -38,6 +38,13 @@ void Led::blink() {
     this->_ticker.once_ms(200, &Led::toggle, this);
 }
 
+// void Led::blink(unsigned int times) {
+//     // this->toggle();
+//     for (int i = 0; i < times * 2, i++) {
+//         this->_ticker.once_ms(interval_ms, &Led::toggle, this);
+//     }
+// }
+
 void Led::flash(uint32_t milliseconds) {
     this->_ticker.attach_ms(milliseconds, &Led::toggle, this);
 }
@@ -47,7 +54,10 @@ void Led::stopFlash() {
 }
 
 void Led::setBrightness(unsigned int brightness) {
-    this->_brightness = brightness <= MAX_BRIGHTNESS ? brightness : MAX_BRIGHTNESS;
+    // inverse the brightness since our LED is lit when LOW
+    this->_brightness = brightness < MAX_BRIGHTNESS
+        ? MAX_BRIGHTNESS - brightness
+        : 0;
 }
 
 bool Led::isOn(Led* led) {
