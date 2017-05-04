@@ -15,7 +15,7 @@ const char HOSTNAME[] = "GarageDoorServer";
 // Instantiate Status LED
 Led statusLed(BUILTIN_LED);
 // Instantiate Garage Button
-Button garageButton(BUILTIN_LED);
+Button garageButton(D1);
 // Instantiate web server
 ESP8266WebServer server(80);
 
@@ -76,6 +76,7 @@ void webServerInit() {
         server.send(200, "application/json", jsonString);
     });
 
+
     server.begin();
     Serial.println("Server started");
     Serial.print("Use this URL to connect: ");
@@ -84,13 +85,71 @@ void webServerInit() {
 
 }
 
+class Sensor {
+
+public:
+    Sensor(byte pin)
+        : _pin(pin)
+        , _previous_millis(0)
+        , _interval_millis(500)
+    {}
+
+    void init() {
+        pinMode(this->_pin, INPUT);
+    }
+
+    void debouncer() {
+        if (millis() - this->_previous_millis >= this->_interval_millis) {
+            bool currentState = digitalRead(this->_pin);
+            if (this->_state != currentState) {
+                this->_previous_millis = millis();
+                this->_state = currentState;
+            }
+        }
+    }
+
+    // static void debouncer(Sensor* sensor) {
+    //     sensor->debouncer();
+    // }
+
+    bool getState() {
+        return this->_state;
+    }
+
+    void onChange(void (*callback)()) {
+        // attachInterrupt(this->_pin, this->*debouncer(), CHANGE);
+    }
+
+private:
+
+    unsigned long _previous_millis;
+    uint16_t _interval_millis;
+    const byte _pin;
+    int _state;
+    Ticker _ticker;
+
+    void _setState(int state);
+
+};
+
+void blink() {
+    Serial.println(digitalRead(D3));
+    statusLed.blink();
+}
+
+Sensor garageSensor(D3);
 
 // This only runs once at startup
 void setup() {
 
     statusLed.init();
-
     garageButton.init();
+    garageSensor.init();
+
+    garageSensor.onChange([](){
+        Serial.print("onChange: ");
+        Serial.println(digitalRead(D3));
+    });
 
     // Flash status LED to indicate booting up
     statusLed.flash(500);
@@ -103,6 +162,9 @@ void setup() {
 
     // Start the web server
     webServerInit();
+
+
+
 
     // === Clean Up ====
     // Stop flashing status LED

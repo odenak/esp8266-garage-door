@@ -7,6 +7,7 @@ Button::~Button() {
 }
 
 void Button::init() {
+    this->up();
     pinMode(this->_pin, OUTPUT);
 }
 

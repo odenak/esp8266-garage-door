@@ -6,6 +6,7 @@
 
 const static int LED_ON = LOW;
 const static int LED_OFF = HIGH;
+const static unsigned int MAX_BRIGHTNESS = 1023;
 
 class Led {
     public:
@@ -17,8 +18,10 @@ class Led {
         void on();
         void off();
         void toggle();
+        void blink();
         void flash(uint32_t milliseconds);
         void stopFlash();
+        void setBrightness(unsigned int brightness);
         static bool isOn(Led* led);
         static bool isOff(Led* led);
         static void on(Led* led);
@@ -29,6 +32,7 @@ class Led {
 
     private:
         const byte _pin;
+        unsigned int _brightness;
         int _state;
         Ticker _ticker;
 

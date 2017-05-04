@@ -9,6 +9,7 @@ Led::~Led() {
 void Led::init() {
     // initialize digital pin as an output.
     pinMode(this->_pin, OUTPUT);
+    this->setBrightness(MAX_BRIGHTNESS);
     this->off();
 }
 
@@ -32,12 +33,21 @@ void Led::toggle() {
     this->_setState(!this->_state);
 }
 
+void Led::blink() {
+    this->toggle();
+    this->_ticker.once_ms(200, &Led::toggle, this);
+}
+
 void Led::flash(uint32_t milliseconds) {
     this->_ticker.attach_ms(milliseconds, &Led::toggle, this);
 }
 
 void Led::stopFlash() {
     this->_ticker.detach();
+}
+
+void Led::setBrightness(unsigned int brightness) {
+    this->_brightness = brightness <= MAX_BRIGHTNESS ? brightness : MAX_BRIGHTNESS;
 }
 
 bool Led::isOn(Led* led) {
@@ -70,5 +80,9 @@ void Led::stopFlash(Led* led) {
 
 void Led::_setState(int state) {
     this->_state = state;
-    digitalWrite(this->_pin, state);
+    if (state == LED_ON) {
+        analogWrite(this->_pin, this->_brightness);
+    } else {
+        digitalWrite(this->_pin, state);
+    }
 }
